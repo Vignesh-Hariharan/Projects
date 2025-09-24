@@ -334,8 +334,7 @@ def main():
         metrics = monitor.monitor()
         
         if metrics:
-            print(f"\n🎯 Quality Score: {metrics.success_rate:.1f}%")
-            print(f"📈 Trend: {'Improving' if metrics.success_rate > 85 else 'Needs Attention'}")
+            print(f"\nQuality Score: {metrics.success_rate:.1f}%")
         else:
             print("❌ Monitoring failed - check logs for details")
             

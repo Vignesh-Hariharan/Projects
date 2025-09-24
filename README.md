@@ -58,8 +58,7 @@ Critical Issues:
   → Implement deduplication logic
   → Review data ingestion process
 
-🎯 Quality Score: 50.0%
-📈 Trend: Needs Attention
+Quality Score: 50.0%
 ```
 
 ## What This Demonstrates
