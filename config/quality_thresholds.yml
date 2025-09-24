@@ -1,5 +1,4 @@
-# Data Quality Thresholds Configuration
-# Demonstrates externalized configuration management
+# Data Quality Thresholds
 
 data_quality_rules:
   completeness:

@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Enterprise Data Quality Monitoring System
-Demonstrates production-ready architecture patterns and best practices.
-"""
 
 import json
 import yaml
@@ -15,7 +11,6 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import logging
 
-# Configure logging for enterprise-grade observability
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -28,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ValidationResult:
-    """Data class representing validation results - demonstrates modern Python patterns"""
     rule_name: str
     success: bool
     score: float
@@ -37,7 +31,6 @@ class ValidationResult:
 
 @dataclass 
 class QualityMetrics:
-    """Aggregated quality metrics for reporting"""
     run_id: str
     timestamp: datetime
     success_rate: float
@@ -48,8 +41,6 @@ class QualityMetrics:
     overall_status: str
 
 class ValidationRule(ABC):
-    """Abstract base class for validation rules - Strategy Pattern"""
-    
     @abstractmethod
     def validate(self, data: pd.DataFrame) -> ValidationResult:
         pass
@@ -59,8 +50,6 @@ class ValidationRule(ABC):
         pass
 
 class CompletenessRule(ValidationRule):
-    """Validates data completeness"""
-    
     def __init__(self, threshold: float = 2.0):
         self.threshold = threshold
     
@@ -82,8 +71,6 @@ class CompletenessRule(ValidationRule):
         return []
 
 class UniquenessRule(ValidationRule):
-    """Validates data uniqueness"""
-    
     def __init__(self, key_columns: List[str]):
         self.key_columns = key_columns
     
@@ -105,8 +92,6 @@ class UniquenessRule(ValidationRule):
         return []
 
 class ValidationRuleFactory:
-    """Factory pattern for creating validation rules"""
-    
     _rules = {
         'completeness': CompletenessRule,
         'uniqueness': UniquenessRule
@@ -120,12 +105,9 @@ class ValidationRuleFactory:
     
     @classmethod
     def register_rule(cls, name: str, rule_class: ValidationRule):
-        """Allows extending with custom rules"""
         cls._rules[name] = rule_class
 
 class AlertManager:
-    """Observer pattern for handling alerts"""
-    
     def __init__(self):
         self.observers = []
     
@@ -137,15 +119,12 @@ class AlertManager:
             observer.handle_alert(metrics)
 
 class DataQualityMonitor:
-    """Main monitoring class demonstrating enterprise architecture"""
-    
     def __init__(self, config_path: str = "config/quality_thresholds.yml"):
         self.config = self._load_config(config_path)
         self.alert_manager = AlertManager()
         self.validation_rules = self._initialize_rules()
     
     def _load_config(self, config_path: str) -> Dict[str, Any]:
-        """Load configuration from YAML file"""
         try:
             with open(config_path, 'r') as f:
                 return yaml.safe_load(f)
@@ -154,7 +133,6 @@ class DataQualityMonitor:
             return self._default_config()
     
     def _default_config(self) -> Dict[str, Any]:
-        """Default configuration for demo purposes"""
         return {
             "data_quality_rules": {
                 "completeness": {"missing_threshold": 2.0},
@@ -166,21 +144,17 @@ class DataQualityMonitor:
         }
     
     def _initialize_rules(self) -> List[ValidationRule]:
-        """Initialize validation rules from config"""
         rules = []
         
-        # Completeness rule
         threshold = self.config.get("data_quality_rules", {}).get("completeness", {}).get("missing_threshold", 2.0)
         rules.append(ValidationRuleFactory.create_rule("completeness", threshold=threshold))
         
-        # Uniqueness rule  
-        key_columns = ["record_id", "campaign_id"]  # Use actual columns from dataset
+        key_columns = ["record_id", "campaign_id"]
         rules.append(ValidationRuleFactory.create_rule("uniqueness", key_columns=key_columns))
         
         return rules
     
     def validate_data(self, data_path: str) -> List[ValidationResult]:
-        """Run validation rules against dataset"""
         try:
             data = pd.read_csv(data_path)
             logger.info(f"Loaded dataset with {len(data)} records, {len(data.columns)} columns")
@@ -201,7 +175,6 @@ class DataQualityMonitor:
             return []
     
     def calculate_metrics(self, results: List[ValidationResult]) -> QualityMetrics:
-        """Calculate aggregated quality metrics"""
         if not results:
             return None
             
@@ -210,7 +183,6 @@ class DataQualityMonitor:
         failed_checks = total_checks - passed_checks
         success_rate = (passed_checks / total_checks * 100) if total_checks > 0 else 0
         
-        # Determine status based on thresholds
         thresholds = self.config.get("alerting", {}).get("thresholds", {})
         if success_rate >= thresholds.get("warning", 80.0):
             status = "✅ PASSING"
@@ -219,7 +191,6 @@ class DataQualityMonitor:
         else:
             status = "🚨 CRITICAL"
         
-        # Collect critical failures
         critical_failures = [r.rule_name for r in results if not r.success]
         
         return QualityMetrics(
@@ -234,7 +205,6 @@ class DataQualityMonitor:
         )
     
     def generate_report(self, metrics: QualityMetrics, results: List[ValidationResult]) -> str:
-        """Generate comprehensive quality report"""
         if not metrics:
             return "No metrics available"
         
@@ -247,7 +217,6 @@ Success Rate: {metrics.success_rate:.1f}% ({metrics.passed_checks}/{metrics.tota
 Status: {metrics.overall_status}
 """
         
-        # Add failed validations with recommendations
         failed_results = [r for r in results if not r.success]
         if failed_results:
             report += "\nCritical Issues:\n"
@@ -258,21 +227,18 @@ Status: {metrics.overall_status}
                 elif result.rule_name == "uniqueness":
                     report += f"• Duplicate records: {details['duplicate_count']} found (threshold: 0)\n"
                 
-                # Add recommendations
                 for rec in result.recommendations:
                     report += f"  → {rec}\n"
         
         return report
     
     def save_metrics(self, metrics: QualityMetrics) -> Path:
-        """Save metrics for historical tracking"""
         metrics_dir = Path("monitoring/metrics")
         metrics_dir.mkdir(exist_ok=True, parents=True)
         
         timestamp = metrics.timestamp.strftime("%Y%m%d_%H%M%S")
         metrics_file = metrics_dir / f"quality_metrics_{timestamp}.json"
         
-        # Convert dataclass to dict for JSON serialization
         metrics_dict = {
             "run_id": metrics.run_id,
             "timestamp": metrics.timestamp.isoformat(),
@@ -290,53 +256,43 @@ Status: {metrics.overall_status}
         return metrics_file
     
     def monitor(self, data_path: str = "data/subset/marketing_performance.csv") -> Optional[QualityMetrics]:
-        """Main monitoring function - orchestrates the entire process"""
-        logger.info("🔍 Starting enterprise data quality monitoring...")
+        logger.info("Starting data quality monitoring...")
         
-        # Run validations
         results = self.validate_data(data_path)
         if not results:
             logger.error("No validation results obtained")
             return None
         
-        # Calculate metrics
         metrics = self.calculate_metrics(results)
         if not metrics:
             logger.error("Failed to calculate metrics")
             return None
         
-        # Generate and display report
         report = self.generate_report(metrics, results)
         print(report)
         
-        # Save metrics for historical tracking
         metrics_file = self.save_metrics(metrics)
-        logger.info(f"📊 Metrics saved to {metrics_file}")
+        logger.info(f"Metrics saved to {metrics_file}")
         
-        # Alert based on severity
         if metrics.failed_checks > 0:
             if "CRITICAL" in metrics.overall_status:
-                logger.error(f"🚨 CRITICAL: Data quality below acceptable thresholds")
+                logger.error("CRITICAL: Data quality below acceptable thresholds")
             elif "WARNING" in metrics.overall_status:
-                logger.warning(f"⚠️  WARNING: Data quality issues detected")
+                logger.warning("WARNING: Data quality issues detected")
         else:
-            logger.info("✅ All data quality checks passed")
+            logger.info("All data quality checks passed")
         
         return metrics
 
 def main():
-    """Main execution function for demonstration"""
     try:
-        # Initialize monitor
         monitor = DataQualityMonitor()
-        
-        # Run monitoring
         metrics = monitor.monitor()
         
         if metrics:
             print(f"\nQuality Score: {metrics.success_rate:.1f}%")
         else:
-            print("❌ Monitoring failed - check logs for details")
+            print("Monitoring failed - check logs for details")
             
     except Exception as e:
         logger.error(f"Monitoring system error: {e}")

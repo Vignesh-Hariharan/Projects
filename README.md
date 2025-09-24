@@ -1,50 +1,26 @@
-# Enterprise Data Quality Framework 🏗️
+# Data Quality Framework
 
-A production-ready data quality monitoring system demonstrating enterprise architecture patterns and best practices. Built for scale, maintainability, and operational excellence.
+Data quality monitoring system with configurable validation rules and Snowflake integration.
 
-## Architecture Overview
+## Overview
 
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Data Sources  │────│  Quality Engine  │────│   Monitoring    │
-│                 │    │                  │    │                 │
-│ • CSV Files     │    │ • Validation     │    │ • Alerting      │
-│ • APIs          │    │ • Profiling      │    │ • Reporting     │
-│ • Databases     │    │ • Scoring        │    │ • Dashboards    │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-```
+The framework validates incoming data against configured business rules and writes results to both local storage and Snowflake for reporting.
 
-## Key Architectural Decisions
+Key components:
+- Validation engine with pluggable rules
+- Configurable thresholds via YAML 
+- Snowflake integration for enterprise reporting
+- JSON metrics storage for historical analysis
 
-### 🔧 **Modular Design**
-- Separation of concerns between data ingestion, validation, and monitoring
-- Plugin-based architecture for extensible validation rules
-- Observer pattern for event-driven alerting
-
-### 📊 **Data Quality Framework**
-- Statistical profiling for baseline establishment  
-- Rule-based validation with configurable thresholds
-- Historical tracking for trend analysis and SLA monitoring
-
-### 🚨 **Monitoring & Observability**
-- Multi-tier alerting (INFO, WARNING, CRITICAL)
-- Metrics collection for operational dashboards
-- Audit logging for compliance and debugging
-
-## Quick Start
+## Usage
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Generate sample dataset with realistic quality issues
 python scripts/prepare_data.py
-
-# Run quality validation and monitoring
 python monitoring/data_quality_monitor.py
 ```
 
-## Sample Output
+## Output
 
 ```
 DATA QUALITY REPORT
@@ -61,61 +37,37 @@ Critical Issues:
 Quality Score: 50.0%
 ```
 
-## What This Demonstrates
+## Architecture
 
-### **Enterprise Architecture Skills**
-- **Design Patterns**: Observer, Strategy, Factory patterns
-- **Scalability**: Configurable validation rules and extensible architecture
-- **Maintainability**: Clean code principles and modular structure
-- **Observability**: Comprehensive logging, metrics, and alerting
+Uses strategy pattern for validation rules, factory pattern for rule creation, and observer pattern for alerting. Configuration is externalized to YAML files.
 
-### **Data Architecture Expertise**
-- **Data Quality Strategy**: Multi-dimensional quality assessment with business impact analysis
-- **Enterprise Integration**: Snowflake data warehouse integration for reporting and analytics
-- **SLA Management**: Configurable thresholds with automated escalation workflows
-- **Operational Excellence**: Production monitoring with historical trend analysis
-
-### **Technical Leadership**
-- **Production-Ready Code**: Error handling, logging, configuration management
-- **Documentation**: Clear architecture decisions and runbooks
-- **Testing Strategy**: Unit tests and data validation scenarios
-
-## Project Structure
+## Structure
 
 ```
-enterprise-dq-framework/
-├── monitoring/
-│   ├── data_quality_monitor.py     # Core monitoring engine
-│   └── metrics/                    # Historical metrics storage
-├── integrations/
-│   └── snowflake_writer.py         # Snowflake data warehouse integration
-├── config/
-│   └── quality_thresholds.yml     # Configurable business rules
-├── data/
-│   └── subset/                     # Sample datasets with quality issues
-└── scripts/
-    └── prepare_data.py             # Data preparation and enhancement
+├── monitoring/data_quality_monitor.py    # Main monitoring logic
+├── integrations/snowflake_writer.py      # Snowflake integration
+├── config/quality_thresholds.yml         # Business rules configuration
+├── data/subset/                           # Sample data with quality issues
+└── scripts/prepare_data.py               # Data generation
 ```
 
-## Technologies & Patterns
+## Technology Stack
 
-- **Python 3.11** - Modern language features and type hints
-- **Pandas/NumPy** - High-performance data processing
-- **YAML Configuration** - Externalized configuration management
-- **JSON Schema** - Data contract validation
-- **Observer Pattern** - Event-driven architecture
-- **Factory Pattern** - Pluggable validation rules
+- Python 3.11 with pandas/numpy
+- YAML configuration
+- Snowflake connector
+- Strategy/Factory/Observer patterns
 
-## Extending the Framework
+## Extending
+
+Add new validation rules by implementing the ValidationRule interface:
 
 ```python
-# Add custom validation rule
-class CustomValidationRule(ValidationRule):
+class CustomRule(ValidationRule):
     def validate(self, df: pd.DataFrame) -> ValidationResult:
-        # Implementation here
+        # validation logic
         pass
 
-# Register with factory
-ValidationRuleFactory.register('custom_rule', CustomValidationRule)
+ValidationRuleFactory.register('custom', CustomRule)
 ```
 

@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Snowflake Integration for Data Quality Metrics
-Writes quality metrics to Snowflake data warehouse for enterprise reporting.
-"""
 
 import json
 from datetime import datetime
@@ -12,24 +8,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SnowflakeQualityWriter:
-    """
-    Writes data quality metrics to Snowflake for enterprise reporting and dashboards.
-    Demonstrates integration with cloud data warehouse platforms.
-    """
-    
     def __init__(self, connection_params: Dict[str, str]):
-        """
-        Initialize Snowflake connection.
-        
-        Args:
-            connection_params: Dictionary containing Snowflake connection details
-                - account, user, password, warehouse, database, schema
-        """
         self.connection_params = connection_params
         self.connection = None
         
     def connect(self):
-        """Establish connection to Snowflake warehouse"""
         try:
             import snowflake.connector
             
@@ -41,19 +24,18 @@ class SnowflakeQualityWriter:
                 database=self.connection_params['database'],
                 schema=self.connection_params['schema']
             )
-            logger.info("✅ Connected to Snowflake warehouse")
+            logger.info("Connected to Snowflake warehouse")
             
         except ImportError:
-            logger.warning("❌ Snowflake connector not installed. Run: pip install snowflake-connector-python")
+            logger.warning("Snowflake connector not installed. Run: pip install snowflake-connector-python")
             return False
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Snowflake: {e}")
+            logger.error(f"Failed to connect to Snowflake: {e}")
             return False
             
         return True
     
     def create_quality_tables(self):
-        """Create data quality metrics tables if they don't exist"""
         if not self.connection:
             return False
             
