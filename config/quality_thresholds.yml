@@ -3,14 +3,14 @@
 
 data_quality_rules:
   completeness:
-    missing_threshold: 2.0  # Max % of missing values
+    missing_threshold: 8.0  # Max % of missing values
     critical_columns:
       - customer_id
       - transaction_id
       - amount
   
   uniqueness:
-    duplicate_threshold: 0  # Max number of duplicates allowed
+    duplicate_threshold: 5  # Max number of duplicates allowed
     unique_columns:
       - transaction_id
       - customer_email

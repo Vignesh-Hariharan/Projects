@@ -49,18 +49,17 @@ python monitoring/data_quality_monitor.py
 ```
 DATA QUALITY REPORT
 ==================
-Run ID: marketing_validation_20240924
-Success Rate: 85.7% (6/7 checks passed)
-Status: ⚠️  WARNING
+Run ID: quality_check_20250924_000943
+Success Rate: 50.0% (1/2 checks passed) 
+Status: ⚠️ WARNING
 
 Critical Issues:
-• Missing values: 5.4% in 'conversions' (threshold: 2%)
-• Duplicate records: 2 found (threshold: 0)
-• Data freshness: 6 hours (SLA: 4 hours)
+• Duplicate records: 2 found (threshold: 5)
+  → Implement deduplication logic
+  → Review data ingestion process
 
-Recommendations:
-• Investigate upstream ETL for missing conversions
-• Implement deduplication in ingestion layer
+🎯 Quality Score: 50.0%
+📈 Trend: Needs Attention
 ```
 
 ## What This Demonstrates
@@ -72,10 +71,10 @@ Recommendations:
 - **Observability**: Comprehensive logging, metrics, and alerting
 
 ### **Data Architecture Expertise**
-- **Data Quality Strategy**: Multi-dimensional quality assessment
-- **Metadata Management**: Schema validation and lineage tracking
-- **SLA Management**: Configurable thresholds and escalation paths
-- **Operational Excellence**: Monitoring, alerting, and incident response
+- **Data Quality Strategy**: Multi-dimensional quality assessment with business impact analysis
+- **Enterprise Integration**: Snowflake data warehouse integration for reporting and analytics
+- **SLA Management**: Configurable thresholds with automated escalation workflows
+- **Operational Excellence**: Production monitoring with historical trend analysis
 
 ### **Technical Leadership**
 - **Production-Ready Code**: Error handling, logging, configuration management
@@ -88,16 +87,15 @@ Recommendations:
 enterprise-dq-framework/
 ├── monitoring/
 │   ├── data_quality_monitor.py     # Core monitoring engine
-│   ├── alerting/                   # Alert dispatching
-│   └── metrics/                    # Metrics collection
-├── validation/
-│   ├── rules/                      # Validation rule definitions
-│   └── profiling/                  # Statistical profiling
+│   └── metrics/                    # Historical metrics storage
+├── integrations/
+│   └── snowflake_writer.py         # Snowflake data warehouse integration
 ├── config/
-│   └── quality_thresholds.yml     # Configurable thresholds
-├── scripts/
-│   └── prepare_data.py             # Data preparation
-└── tests/                          # Unit and integration tests
+│   └── quality_thresholds.yml     # Configurable business rules
+├── data/
+│   └── subset/                     # Sample datasets with quality issues
+└── scripts/
+    └── prepare_data.py             # Data preparation and enhancement
 ```
 
 ## Technologies & Patterns
