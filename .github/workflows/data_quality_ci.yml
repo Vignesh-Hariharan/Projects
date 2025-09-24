@@ -20,7 +20,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
         
     - name: Cache pip dependencies
       uses: actions/cache@v3
@@ -60,21 +60,18 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Run security scan
-      uses: securecodewarrior/github-action-add-sarif@v1
       with:
-        sarif-file: 'security-scan-results.sarif'
-      continue-on-error: true
-      
+        fetch-depth: 0
+
     - name: Check for secrets
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
         base: main
         head: HEAD
+        extra_args: --debug --only-verified
 
