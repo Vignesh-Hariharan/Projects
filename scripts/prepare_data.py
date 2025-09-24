@@ -22,12 +22,10 @@ def download_base_data():
     try:
         print("Downloading advertising dataset...")
         df = pd.read_csv(url)
-        
-        # Clean up column names and remove index column if present
+
         if 'Unnamed: 0' in df.columns:
             df = df.drop('Unnamed: 0', axis=1)
-        
-        # Standardize column names to title case
+
         df.columns = df.columns.str.title()
         
         print(f"Downloaded dataset with {len(df)} records")
@@ -43,58 +41,49 @@ def enhance_marketing_data(df):
     
     np.random.seed(42)
     n_records = len(df)
-    
-    # Add campaign metadata
+
     campaigns = ['Q1_2024_Launch', 'Q2_2024_Summer', 'Q3_2024_BackToSchool', 'Q4_2024_Holiday']
     regions = ['North', 'South', 'East', 'West', 'Central']
     products = ['ProductA', 'ProductB', 'ProductC', 'ProductD']
     channels = ['Digital', 'Traditional', 'Hybrid']
-    
-    # Generate campaign dates
+
     start_date = datetime.now() - timedelta(days=365)
     dates = [start_date + timedelta(days=np.random.randint(0, 365)) for _ in range(n_records)]
-    
-    # Add business dimensions
+
     enhanced_df = df.copy()
     enhanced_df['campaign_id'] = np.random.choice(campaigns, n_records)
     enhanced_df['region'] = np.random.choice(regions, n_records)
     enhanced_df['product'] = np.random.choice(products, n_records)
     enhanced_df['channel_mix'] = np.random.choice(channels, n_records)
     enhanced_df['campaign_date'] = dates
-    
-    # Calculate performance metrics (using correct column names)
+
     enhanced_df['total_spend'] = enhanced_df['Tv'] + enhanced_df['Radio'] + enhanced_df['Newspaper']
-    
-    # Impressions based on spend
+
     enhanced_df['impressions'] = (
-        enhanced_df['Tv'] * 1000 + 
-        enhanced_df['Radio'] * 500 + 
+        enhanced_df['Tv'] * 1000 +
+        enhanced_df['Radio'] * 500 +
         enhanced_df['Newspaper'] * 200 +
         np.random.normal(0, 1000, n_records)
     ).astype(int)
     enhanced_df['impressions'] = np.maximum(enhanced_df['impressions'], 1000)
-    
-    # Clicks and conversions
+
     enhanced_df['clicks'] = (enhanced_df['impressions'] * np.random.uniform(0.01, 0.05, n_records)).astype(int)
     enhanced_df['conversions'] = (enhanced_df['clicks'] * np.random.uniform(0.02, 0.15, n_records)).astype(int)
-    
-    # Cost metrics
+
     enhanced_df['cost_per_click'] = np.where(
-        enhanced_df['clicks'] > 0, 
-        enhanced_df['total_spend'] / enhanced_df['clicks'], 
+        enhanced_df['clicks'] > 0,
+        enhanced_df['total_spend'] / enhanced_df['clicks'],
         0
     )
     enhanced_df['cost_per_acquisition'] = np.where(
         enhanced_df['conversions'] > 0,
-        enhanced_df['total_spend'] / enhanced_df['conversions'], 
+        enhanced_df['total_spend'] / enhanced_df['conversions'],
         0
     )
-    
-    # Customer and revenue metrics
+
     enhanced_df['customer_lifetime_value'] = enhanced_df['Sales'] * np.random.uniform(1.5, 3.0, n_records)
     enhanced_df['return_on_ad_spend'] = enhanced_df['Sales'] / enhanced_df['total_spend']
-    
-    # Add metadata
+
     enhanced_df['ingestion_timestamp'] = datetime.now()
     enhanced_df['data_source'] = 'marketing_automation_platform'
     enhanced_df['record_id'] = range(1, len(enhanced_df) + 1)
@@ -105,20 +94,16 @@ def introduce_quality_issues(df):
     """Introduce realistic data quality issues for validation testing."""
     
     n_records = len(df)
-    
-    # Missing values (5% of conversions)
+
     missing_conv = np.random.choice(n_records, size=int(n_records * 0.05), replace=False)
     df.loc[missing_conv, 'conversions'] = np.nan
-    
-    # Missing CLV (3% of records)
+
     missing_clv = np.random.choice(n_records, size=int(n_records * 0.03), replace=False)
     df.loc[missing_clv, 'customer_lifetime_value'] = np.nan
-    
-    # Outliers in CPC (2% of records)
+
     outlier_cpc = np.random.choice(n_records, size=int(n_records * 0.02), replace=False)
     df.loc[outlier_cpc, 'cost_per_click'] = df.loc[outlier_cpc, 'cost_per_click'] * 50
-    
-    # Duplicate records (1% of records)
+
     duplicate_idx = np.random.choice(n_records, size=int(n_records * 0.01), replace=False)
     duplicates = df.loc[duplicate_idx].copy()
     df = pd.concat([df, duplicates], ignore_index=True)
@@ -131,13 +116,11 @@ def save_datasets(df):
     data_dir = Path("data")
     subset_dir = data_dir / "subset"
     subset_dir.mkdir(exist_ok=True)
-    
-    # Main dataset
+
     main_path = subset_dir / "marketing_performance.csv"
     df.to_csv(main_path, index=False)
     print(f"Saved dataset with {len(df)} records to {main_path}")
-    
-    # Create demo subset
+
     demo_df = df.sample(n=min(1000, len(df)), random_state=42)
     demo_path = subset_dir / "marketing_demo.csv"
     demo_df.to_csv(demo_path, index=False)
@@ -150,21 +133,18 @@ def analyze_data_quality(df):
     
     print("\n=== DATA QUALITY ANALYSIS ===")
     print(f"Dataset shape: {df.shape}")
-    
-    # Missing values
+
     missing = df.isnull().sum()
     if missing.any():
         print(f"\nMissing values:")
         for col, count in missing[missing > 0].items():
             pct = (count / len(df)) * 100
             print(f"  {col}: {count} ({pct:.1f}%)")
-    
-    # Duplicates
+
     duplicates = df.duplicated().sum()
     if duplicates > 0:
         print(f"\nDuplicate records: {duplicates}")
-    
-    # Outliers
+
     outlier_cols = ['cost_per_click', 'cost_per_acquisition', 'return_on_ad_spend']
     for col in outlier_cols:
         if col in df.columns:
@@ -182,8 +162,7 @@ def main():
     
     try:
         print("=== MARKETING DATA PREPARATION ===")
-        
-        # Download base dataset
+
         base_df = download_base_data()
         
         print("\nEnhancing with business dimensions...")

@@ -41,8 +41,7 @@ class SnowflakeQualityWriter:
             
         try:
             cursor = self.connection.cursor()
-            
-            # Create main quality metrics table
+
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS DATA_QUALITY_METRICS (
                     RUN_ID VARCHAR(100) PRIMARY KEY,
@@ -57,8 +56,7 @@ class SnowflakeQualityWriter:
                     CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )
             """)
-            
-            # Create detailed validation results table
+
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS DATA_QUALITY_RESULTS (
                     RESULT_ID INTEGER AUTOINCREMENT PRIMARY KEY,
@@ -95,11 +93,10 @@ class SnowflakeQualityWriter:
             
         try:
             cursor = self.connection.cursor()
-            
-            # Insert main metrics
+
             cursor.execute("""
-                INSERT INTO DATA_QUALITY_METRICS 
-                (RUN_ID, TIMESTAMP, DATA_SOURCE, SUCCESS_RATE, TOTAL_CHECKS, 
+                INSERT INTO DATA_QUALITY_METRICS
+                (RUN_ID, TIMESTAMP, DATA_SOURCE, SUCCESS_RATE, TOTAL_CHECKS,
                  PASSED_CHECKS, FAILED_CHECKS, OVERALL_STATUS, METADATA)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
@@ -107,14 +104,13 @@ class SnowflakeQualityWriter:
                 datetime.fromisoformat(metrics['timestamp'].replace('Z', '+00:00')),
                 'marketing_data',
                 metrics['success_rate'],
-                metrics['total_checks'], 
+                metrics['total_checks'],
                 metrics['passed_checks'],
                 metrics['failed_checks'],
                 metrics['overall_status'],
                 json.dumps(metrics)
             ))
-            
-            # Insert detailed results if provided
+
             if validation_results:
                 for result in validation_results:
                     cursor.execute("""

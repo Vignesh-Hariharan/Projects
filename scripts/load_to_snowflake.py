@@ -26,8 +26,7 @@ def get_snowflake_connection():
         'database': os.getenv('SNOWFLAKE_DATABASE', 'ECOMMERCE_DATA'),
         'schema': os.getenv('SNOWFLAKE_SCHEMA', 'RAW')
     }
-    
-    # Validate required config
+
     required_fields = ['account', 'user', 'password']
     missing_fields = [field for field in required_fields if not config.get(field)]
     
@@ -39,34 +38,29 @@ def get_snowflake_connection():
 def load_marketing_data(data_file, table_name='MARKETING_DATA'):
     """Load marketing data from CSV to Snowflake table."""
     
-    # Read data
     logger.info(f"Reading data from {data_file}")
     df = pd.read_csv(data_file)
-    
-    # Convert column names to uppercase for Snowflake
+
     df.columns = df.columns.str.upper()
-    
-    # Convert data types
+
     date_columns = ['CAMPAIGN_DATE', 'INGESTION_TIMESTAMP']
     for col in date_columns:
         if col in df.columns:
             df[col] = pd.to_datetime(df[col])
-    
+
     logger.info(f"Prepared {len(df)} records for upload")
-    
-    # Connect to Snowflake
+
     logger.info("Connecting to Snowflake...")
     conn = get_snowflake_connection()
-    
+
     try:
-        # Upload data
         logger.info(f"Loading data to {table_name}...")
         success, nchunks, nrows, _ = write_pandas(
-            conn, 
-            df, 
+            conn,
+            df,
             table_name,
-            auto_create_table=False,  # Table should already exist from Terraform
-            overwrite=True  # Replace existing data
+            auto_create_table=False,
+            overwrite=True
         )
         
         if success:
@@ -88,21 +82,18 @@ def validate_upload(table_name='MARKETING_DATA'):
     
     logger.info("Validating uploaded data...")
     conn = get_snowflake_connection()
-    
+
     try:
         cursor = conn.cursor()
-        
-        # Check record count
+
         cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
         count = cursor.fetchone()[0]
         logger.info(f"Total records in {table_name}: {count}")
-        
-        # Check data freshness
+
         cursor.execute(f"SELECT MAX(INGESTION_TIMESTAMP) FROM {table_name}")
         max_timestamp = cursor.fetchone()[0]
         logger.info(f"Latest data timestamp: {max_timestamp}")
-        
-        # Check for nulls in key columns
+
         key_columns = ['TV', 'RADIO', 'NEWSPAPER', 'SALES', 'CAMPAIGN_ID']
         for col in key_columns:
             cursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE {col} IS NULL")
@@ -121,21 +112,18 @@ def validate_upload(table_name='MARKETING_DATA'):
 
 def main():
     """Main execution function."""
-    
-    # Default data file
+
     data_file = Path("data/subset/marketing_performance.csv")
-    
+
     if not data_file.exists():
         logger.error(f"Data file not found: {data_file}")
         logger.info("Run 'python scripts/prepare_data.py' first")
         return
-    
+
     try:
-        # Load data
         success = load_marketing_data(data_file)
-        
+
         if success:
-            # Validate upload
             validate_upload()
             logger.info("✅ Data loading completed successfully")
         else:

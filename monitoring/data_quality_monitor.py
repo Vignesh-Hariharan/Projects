@@ -73,28 +73,172 @@ class CompletenessRule(ValidationRule):
 class UniquenessRule(ValidationRule):
     def __init__(self, key_columns: List[str]):
         self.key_columns = key_columns
-    
+
     def validate(self, data: pd.DataFrame) -> ValidationResult:
         duplicates = data.duplicated(subset=self.key_columns).sum()
         success = duplicates == 0
-        
+
         return ValidationResult(
-            rule_name="uniqueness", 
+            rule_name="uniqueness",
             success=success,
             score=100 if success else max(0, 100 - (duplicates / len(data) * 100)),
             details={"duplicate_count": int(duplicates), "key_columns": self.key_columns},
             recommendations=self.get_recommendations(duplicates)
         )
-    
+
     def get_recommendations(self, duplicates: int) -> List[str]:
         if duplicates > 0:
             return ["Implement deduplication logic", "Review data ingestion process"]
         return []
 
+class DateValidityRule(ValidationRule):
+    def __init__(self, date_columns: List[str], max_future_days: int = 1):
+        self.date_columns = date_columns
+        self.max_future_days = max_future_days
+
+    def validate(self, data: pd.DataFrame) -> ValidationResult:
+        invalid_dates = 0
+        total_date_cells = 0
+        current_date = datetime.now()
+
+        for col in self.date_columns:
+            if col in data.columns:
+                total_date_cells += len(data)
+                try:
+                    date_series = pd.to_datetime(data[col], errors='coerce')
+
+                    null_dates = date_series.isnull().sum()
+                    invalid_dates += null_dates
+
+                    future_dates = date_series[
+                        (date_series > current_date + timedelta(days=self.max_future_days)) &
+                        date_series.notnull()
+                    ]
+                    invalid_dates += len(future_dates)
+
+                    old_dates = date_series[
+                        (date_series < pd.Timestamp('2000-01-01')) &
+                        date_series.notnull()
+                    ]
+                    invalid_dates += len(old_dates)
+
+                except Exception:
+                    invalid_dates += len(data)
+
+        success = invalid_dates == 0
+        validity_rate = ((total_date_cells - invalid_dates) / total_date_cells * 100) if total_date_cells > 0 else 0
+
+        return ValidationResult(
+            rule_name="date_validity",
+            success=success,
+            score=validity_rate,
+            details={
+                "invalid_dates": int(invalid_dates),
+                "total_date_cells": total_date_cells,
+                "date_columns": self.date_columns,
+                "max_future_days": self.max_future_days
+            },
+            recommendations=self.get_recommendations(invalid_dates, total_date_cells)
+        )
+
+    def get_recommendations(self, invalid_dates: int, total_cells: int) -> List[str]:
+        if invalid_dates > 0:
+            recommendations = []
+            error_rate = invalid_dates / total_cells if total_cells > 0 else 1
+
+            if error_rate > 0.1:
+                recommendations.append("Review data source date format standards")
+                recommendations.append("Implement date validation at data ingestion")
+            else:
+                recommendations.append("Clean up invalid date entries")
+                recommendations.append("Add date format validation to ETL pipeline")
+
+            recommendations.append("Consider adding date range business rules")
+            return recommendations
+        return []
+
+class RoiThresholdRule(ValidationRule):
+    def __init__(self, roi_column: str, min_threshold: float = 0.0, max_threshold: float = 5.0):
+        self.roi_column = roi_column
+        self.min_threshold = min_threshold
+        self.max_threshold = max_threshold
+
+    def validate(self, data: pd.DataFrame) -> ValidationResult:
+        if self.roi_column not in data.columns:
+            return ValidationResult(
+                rule_name="roi_threshold",
+                success=False,
+                score=0,
+                details={"error": f"Column '{self.roi_column}' not found in dataset"},
+                recommendations=["Verify ROI column name in configuration"]
+            )
+
+        roi_values = data[self.roi_column].dropna()
+
+        if len(roi_values) == 0:
+            return ValidationResult(
+                rule_name="roi_threshold",
+                success=False,
+                score=0,
+                details={"error": "No valid ROI values found"},
+                recommendations=["Check ROI calculation logic", "Verify spend and sales data"]
+            )
+
+        outliers_low = (roi_values < self.min_threshold).sum()
+        outliers_high = (roi_values > self.max_threshold).sum()
+        total_outliers = outliers_low + outliers_high
+
+        outlier_rate = total_outliers / len(roi_values)
+        score = max(0, 100 - (outlier_rate * 100 * 2))
+
+        success = outlier_rate <= 0.05
+
+        return ValidationResult(
+            rule_name="roi_threshold",
+            success=success,
+            score=score,
+            details={
+                "outliers_below_threshold": int(outliers_low),
+                "outliers_above_threshold": int(outliers_high),
+                "total_outliers": int(total_outliers),
+                "total_valid_values": len(roi_values),
+                "min_threshold": self.min_threshold,
+                "max_threshold": self.max_threshold,
+                "roi_column": self.roi_column
+            },
+            recommendations=self.get_recommendations(outliers_low, outliers_high, len(roi_values))
+        )
+
+    def get_recommendations(self, outliers_low: int, outliers_high: int, total_values: int) -> List[str]:
+        recommendations = []
+
+        if outliers_high > 0:
+            high_rate = outliers_high / total_values
+            if high_rate > 0.1:
+                recommendations.append("Review ROI calculation - unusually high values may indicate data errors")
+                recommendations.append("Validate advertising spend vs sales attribution")
+            else:
+                recommendations.append("Investigate campaigns with exceptional ROI performance")
+
+        if outliers_low > 0:
+            low_rate = outliers_low / total_values
+            if low_rate > 0.1:
+                recommendations.append("Review low ROI campaigns for optimization opportunities")
+                recommendations.append("Check for data quality issues in spend or sales tracking")
+            else:
+                recommendations.append("Monitor underperforming campaigns for budget reallocation")
+
+        if not recommendations:
+            recommendations.append("ROI values within expected ranges")
+
+        return recommendations
+
 class ValidationRuleFactory:
     _rules = {
         'completeness': CompletenessRule,
-        'uniqueness': UniquenessRule
+        'uniqueness': UniquenessRule,
+        'date_validity': DateValidityRule,
+        'roi_threshold': RoiThresholdRule
     }
     
     @classmethod
@@ -145,13 +289,18 @@ class DataQualityMonitor:
     
     def _initialize_rules(self) -> List[ValidationRule]:
         rules = []
-        
+
         threshold = self.config.get("data_quality_rules", {}).get("completeness", {}).get("missing_threshold", 2.0)
         rules.append(ValidationRuleFactory.create_rule("completeness", threshold=threshold))
-        
+
         key_columns = ["record_id", "campaign_id"]
         rules.append(ValidationRuleFactory.create_rule("uniqueness", key_columns=key_columns))
-        
+
+        date_columns = ["campaign_date", "ingestion_timestamp"]
+        rules.append(ValidationRuleFactory.create_rule("date_validity", date_columns=date_columns, max_future_days=1))
+
+        rules.append(ValidationRuleFactory.create_rule("roi_threshold", roi_column="return_on_ad_spend", min_threshold=0.0, max_threshold=3.0))
+
         return rules
     
     def validate_data(self, data_path: str) -> List[ValidationResult]:
@@ -226,7 +375,12 @@ Status: {metrics.overall_status}
                     report += f"• Missing values: {details['missing_percentage']:.1f}% (threshold: {details['threshold']}%)\n"
                 elif result.rule_name == "uniqueness":
                     report += f"• Duplicate records: {details['duplicate_count']} found (threshold: 0)\n"
-                
+                elif result.rule_name == "date_validity":
+                    report += f"• Invalid dates: {details['invalid_dates']} found across {len(details['date_columns'])} columns\n"
+                elif result.rule_name == "roi_threshold":
+                    outliers = details.get('total_outliers', 0)
+                    report += f"• ROI outliers: {outliers} values outside thresholds ({details.get('min_threshold', 0.0)} - {details.get('max_threshold', 3.0)})\n"
+
                 for rec in result.recommendations:
                     report += f"  → {rec}\n"
         
