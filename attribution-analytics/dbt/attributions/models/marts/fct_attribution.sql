@@ -13,9 +13,6 @@
     2. Last Touch: 100% to last touchpoint (baseline)
     3. Linear: Equal credit across all touchpoints
     4. Position-Based (U-Shaped): 40% first, 40% last, 20% middle
-    
-    This model DISCOVERS the undervaluation of prospecting display ads.
-    The math is correct - no hardcoding of results.
 */
 
 WITH attribution_base AS (

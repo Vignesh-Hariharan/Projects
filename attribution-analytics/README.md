@@ -153,7 +153,7 @@ The project generates realistic synthetic data to simulate production marketing 
 - **Multiple touchpoints**: Average 3-5 touchpoints per converting user, distributed across channels
 - **Reproducibility**: Seeded random generation ensures consistent results for validation
 
-**Note on Findings**: The exact percentage (typically 150-200%) varies slightly with each data generation run due to stochastic simulation, but the core insight (significant prospecting undervaluation) remains consistent. This variability demonstrates that the finding emerges from structural campaign timing patterns inherent to programmatic advertising, not from hardcoded results. The simulation parameters (1-14 day prospecting window, post-engagement retargeting) reflect actual industry practices documented in the References section below.
+**Data Reproducibility**: The synthetic data generation uses seeded randomization (seed=42) to ensure consistent results across runs. The exact undervaluation percentage varies slightly (typically 150-200%) due to stochastic user behavior simulation, but the core finding remains stable. The simulation parameters (1-14 day prospecting window, post-engagement retargeting) reflect actual industry practices documented in the References section below.
 
 ## Validation
 

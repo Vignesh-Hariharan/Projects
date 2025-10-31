@@ -7,8 +7,6 @@
 /*
     Joins touchpoints to conversions within the attribution window.
     Calculates touchpoint position and sequence for attribution models.
-    
-    This is the CRITICAL model that determines which touchpoints get credit.
 */
 
 WITH conversions AS (

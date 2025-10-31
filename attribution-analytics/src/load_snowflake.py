@@ -231,7 +231,7 @@ def main():
         if not args.skip_ddl:
             loader.execute_ddl()
         else:
-            print("\n⏭️  Skipping DDL execution")
+            print("\n Skipping DDL execution")
         
         # Load tables
         loader.load_table("campaigns.csv", "campaigns")
