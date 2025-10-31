@@ -129,19 +129,46 @@ attribution-analytics/
 
 ## Attribution Models
 
-### 1. First Touch
-100% credit to first touchpoint in customer journey.
+This project implements four industry-standard attribution models to analyze how credit should be distributed across marketing touchpoints in the customer journey.
 
-### 2. Last Touch
-100% credit to last touchpoint before conversion.
+> **Visual diagrams sourced from:** [Roketto's Visual Guide to Marketing Attribution Models](https://www.helloroketto.com/articles/a-visual-guide-to-marketing-attribution-models)
 
-### 3. Linear
-Equal credit distributed across all touchpoints.
+### 1. First Touch Attribution
 
-### 4. Position-Based (U-Shaped)
-- 40% to first touchpoint
-- 40% to last touchpoint
-- 20% distributed to middle touchpoints
+<img src="images/first-touch-attribution.png" alt="First Touch Attribution Model" width="600"/>
+
+**100% credit to first touchpoint** - The initial interaction receives complete credit for conversions occurring later in the visitor journey. This model emphasizes awareness and acquisition channels.
+
+**Implementation:** `WHEN touchpoint_position = 1 THEN revenue ELSE 0` ([fct_attribution.sql:42-45](dbt/attributions/models/marts/fct_attribution.sql#L42-L45))
+
+### 2. Last Touch Attribution
+
+<img src="images/last-touch-attribution.png" alt="Last Touch Attribution Model" width="600"/>
+
+**100% credit to last touchpoint** - The final interaction before conversion receives all attribution credit. This is the default model in most analytics platforms but systematically undervalues early-stage marketing efforts.
+
+**Implementation:** `WHEN touchpoint_position = total_touchpoints THEN revenue ELSE 0` ([fct_attribution.sql:47-52](dbt/attributions/models/marts/fct_attribution.sql#L47-L52))
+
+### 3. Linear Attribution
+
+<img src="images/linear-attribution.png" alt="Linear Attribution Model" width="600"/>
+
+**Equal credit distributed across all touchpoints** - Every interaction in the customer journey receives equal attribution credit, providing a balanced view of all marketing efforts.
+
+**Implementation:** `revenue / total_touchpoints` ([fct_attribution.sql:54-56](dbt/attributions/models/marts/fct_attribution.sql#L54-L56))
+
+### 4. Position-Based Attribution (U-Shaped)
+
+<img src="images/position-based-attribution.png" alt="Position-Based Attribution Model" width="600"/>
+
+**Weighted credit to first and last positions**:
+- 40% to first touchpoint (acquisition)
+- 40% to last touchpoint (conversion)
+- 20% distributed equally to middle touchpoints (nurture)
+
+This model recognizes both the importance of initial awareness and final conversion moments.
+
+**Implementation:** 40/40/20 split with edge case handling ([fct_attribution.sql:58-72](dbt/attributions/models/marts/fct_attribution.sql#L58-L72))
 
 ## Data Generation
 
