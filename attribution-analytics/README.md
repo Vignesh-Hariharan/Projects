@@ -35,21 +35,31 @@ The magnitude isn't engineered—it's an emergent property of simulating real pr
 ## Technical Architecture
 
 ```
-Data Generation (Python)
-    ├── GA4 Events (~28K events, 287 purchases)
-    ├── Ad Impressions (~14K impressions)
-    └── Campaign Metadata (12 campaigns)
-           ↓
-Snowflake Data Warehouse
-    └── Raw Tables
-           ↓
-dbt Transformations
-    ├── Staging Layer (3 models)
-    ├── Intermediate Layer (2 models)
-    └── Mart Layer (2 models)
-           ↓
-Attribution Results
-    └── 4 attribution models with channel comparison
+GA4 Events (Synthetic)          Programmatic Ads (Simulated)
+  ~28K events, 287 purchases      ~14K impressions, 12 campaigns
+         |                                    |
+         +-------------> Python <-------------+
+                           |
+                      CSV Files
+                    (data/ directory)
+                           |
+                           v
+                  Snowflake Raw Schema
+                   (3 raw tables)
+                           |
+                           v
+              dbt Transformations Pipeline
+           staging (3) → intermediate (2) → marts (2)
+                           |
+                           v
+           Snowflake Analytics Schema
+         (fct_attribution, fct_pathways)
+                           |
+              +------------+------------+
+              |                         |
+              v                         v
+     Attribution Analysis         Data Quality Tests
+     (4 attribution models)       (custom SQL tests)
 ```
 
 **Stack**: Python 3.10+ | Snowflake | dbt 1.7 | Pandas | NumPy
@@ -139,7 +149,7 @@ The system generates realistic synthetic data that mimics real-world user behavi
 
 - **Temporal patterns**: Prospecting ads appear 1-14 days before first session (cold audience targeting); retargeting ads appear after engagement (warm audience targeting). This reflects actual programmatic advertising constraints.
 - **User overlap**: 60% of web users are targeted with ads (realistic match rates for programmatic platforms)
-- **Conversion rate**: ~5% of users convert (287 purchases across 1,000 users)
+- **Conversion rate**: ~5% of users convert (287 purchases across 5,833 users)
 - **Multiple touchpoints**: Average 3-5 touchpoints per converting user, distributed across channels
 - **Reproducibility**: Seeded random generation ensures consistent results for validation
 
