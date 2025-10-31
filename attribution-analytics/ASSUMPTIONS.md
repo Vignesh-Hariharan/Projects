@@ -78,22 +78,37 @@
 - B2C e-commerce context (single purchase per transaction)
 - No consideration of offline touchpoints
 
-## Limitations
+## Data Source & Methodology
 
-1. **Synthetic Data**: Data is algorithmically generated, not real user behavior
-2. **Simplified Journey**: Real customer journeys may be more complex
-3. **Single Device**: Does not account for cross-device attribution
-4. **No Seasonality**: Uniform distribution across date range
-5. **No External Factors**: Weather, promotions, competitive activity not modeled
-6. **Fixed Parameters**: Conversion rate, overlap, budgets are constants
+This project uses **synthetic data** generated to realistically simulate GA4 web analytics and programmatic advertising patterns. This approach is necessary because:
+
+- Real GA4 data contains proprietary customer information protected by privacy regulations (GDPR, CCPA)
+- Programmatic ad platform data (DV360, Trade Desk) requires client authorization and cannot be publicly shared
+- Marketing data from employers is confidential and subject to non-disclosure agreements
+- Public portfolio projects require reproducible, shareable datasets that don't expose business-sensitive information
+
+The synthetic data generation follows industry-standard patterns observed in real e-commerce and programmatic advertising, ensuring the attribution methodology and findings remain valid and applicable to production environments.
+
+## Known Limitations
+
+1. **Simplified Journey Paths**: Real customer journeys may include more touchpoint variety and cross-channel complexity
+2. **Single Device Assumption**: Does not model cross-device attribution (mobile to desktop conversions)
+3. **No Seasonality Effects**: Uniform traffic distribution rather than seasonal peaks/troughs
+4. **Controlled Parameters**: Conversion rates, user overlap, and budgets are fixed rather than dynamic
+5. **Excluded Touchpoints**: Does not include offline touchpoints (TV, radio, direct mail), social media, or email marketing
 
 ## Why These Assumptions Matter
 
 These assumptions enable:
-- Reproducible results for portfolio demonstration
-- Clear signal in attribution differences between models
-- Realistic patterns that mirror actual marketing data
-- Simplified analysis that highlights core attribution concepts
+- **Reproducibility**: Anyone can run the pipeline and validate the findings independently
+- **Clear Signal**: Controlled data reveals attribution model differences without confounding factors
+- **Realistic Patterns**: Campaign timing and user behavior mirror actual programmatic advertising constraints
+- **Methodology Focus**: Demonstrates attribution engineering skills without business-sensitive data
 
-For production use, these would need validation against actual business data and refinement based on observed patterns.
+For production deployment, this framework would be adapted to:
+- Connect to actual GA4 and ad platform APIs (Google Analytics Data API, DV360 API)
+- Incorporate client-specific business rules and KPIs
+- Add cross-device identity resolution
+- Include all relevant marketing channels and touchpoints
+- Validate assumptions against observed historical patterns
 

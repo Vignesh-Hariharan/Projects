@@ -1,8 +1,8 @@
 # Multi-Touch Attribution Analytics
 
-End-to-end pipeline that combines synthetic GA4 e-commerce data with simulated programmatic ad impressions to quantify the true contribution of marketing touchpoints across the conversion funnel.
+End-to-end attribution modeling pipeline built with Python, Snowflake, and dbt. Uses synthetic data to demonstrate production-grade analytics engineering practices while maintaining data privacy and reproducibility.
 
-Built to demonstrate modern analytics engineering practices—from data generation and warehouse design through SQL transformation and validation.
+This project quantifies the true contribution of marketing touchpoints across the customer journey using four attribution models, revealing systematic biases in traditional last-click attribution.
 
 ## Problem Statement
 
@@ -145,7 +145,7 @@ Equal credit distributed across all touchpoints.
 
 ## Data Generation
 
-The system generates realistic synthetic data that mimics real-world user behavior and campaign timing patterns:
+The project generates realistic synthetic data to simulate production marketing datasets while ensuring privacy compliance and reproducibility. The data generation mimics real-world user behavior and programmatic advertising patterns:
 
 - **Temporal patterns**: Prospecting ads appear 1-14 days before first session (cold audience targeting); retargeting ads appear after engagement (warm audience targeting). This reflects actual programmatic advertising constraints.
 - **User overlap**: 60% of web users are targeted with ads (realistic match rates for programmatic platforms)
@@ -227,7 +227,7 @@ This project's methodology and findings are grounded in established marketing at
 
 ## Author
 
-Vignesh Hariharan  
+**Vignesh Hariharan**  
+Analytics Engineer | Data Engineer
 
-
-Portfolio project demonstrating: dbt best practices, Snowflake warehouse design, Python data engineering, attribution modeling, and SQL transformation pipelines.
+Portfolio project demonstrating production-grade analytics engineering: dbt best practices, Snowflake data warehouse design, Python data engineering, multi-touch attribution modeling, and end-to-end SQL transformation pipelines. Built with synthetic data to ensure reproducibility and privacy compliance while showcasing methodology applicable to production environments.
