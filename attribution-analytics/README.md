@@ -1,3 +1,5 @@
+
+
 # Multi-Touch Attribution Analytics
 
 End-to-end attribution modeling pipeline built with Python, Snowflake, and dbt. Uses synthetic data to demonstrate production-grade analytics engineering practices while maintaining data privacy and reproducibility.
@@ -256,5 +258,12 @@ This project's methodology and findings are grounded in established marketing at
 
 **Vignesh Hariharan**  
 Analytics Engineer | Data Engineer
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://linkedin.com/in/h-vignesh)
+[![Portfolio](https://img.shields.io/badge/Portfolio-View_Projects-green)](https://github.com/Vignesh-Hariharan)
+
+> **Portfolio Project** demonstrating production-grade analytics engineering with modern 
+> data stack (Python, Snowflake, dbt). View my other projects and experience at 
+> [LinkedIn](https://linkedin.com/in/h-vignesh).
 
 Portfolio project demonstrating production-grade analytics engineering: dbt best practices, Snowflake data warehouse design, Python data engineering, multi-touch attribution modeling, and end-to-end SQL transformation pipelines. Built with synthetic data to ensure reproducibility and privacy compliance while showcasing methodology applicable to production environments.
