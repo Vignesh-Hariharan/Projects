@@ -18,25 +18,26 @@ This project implements four attribution models (First Touch, Last Touch, Linear
 
 ### Key Finding
 
-Analysis reveals that prospecting display campaigns receive **190% more credit** under position-based attribution compared to last-click models (189.7% actual, seed=42). This finding emerges naturally from realistic campaign timing patterns:
+**Among 37 conversions (17% of total) that included paid prospecting touchpoints**, last-click attribution systematically undervalues early-stage awareness campaigns:
 
-- **Prospecting campaigns** target cold audiences 1-14 days before their first website visit (standard awareness-building strategy)
-- **Retargeting campaigns** fire only after users engage with the site (by definition)
-- Given a 30-day attribution window, this temporal separation means prospecting appears primarily as **first-touch**, receiving 40% credit in position-based models but minimal credit in last-click attribution
+- **Prospecting Display:** +190% gap ($575 → $1,666 under position-based attribution)
+- **Prospecting Native:** +107% gap ($1,778 → $3,677)
+- **Prospecting Video:** +2% gap ($3,069 → $3,135)
 
-**Why is the gap so large?** The 190% undervaluation reflects a realistic scenario where prospecting and retargeting campaigns serve fundamentally different funnel stages with minimal temporal overlap. This aligns with documented industry findings:
+**Why This Matters:** Even with conservative paid media penetration (17% of conversions), multi-touch attribution reveals **$3,056 in prospecting value** that last-click attribution misses entirely. This demonstrates how last-click models systematically bias toward organic/direct channels while ignoring the paid campaigns that initiated the customer journey.
 
-- Google's research indicates last-click attribution undervalues upper-funnel channels by 60-200% depending on campaign structure
-- Marketing attribution studies consistently show 2-3x discrepancies between last-click and algorithmic models for awareness campaigns
-- The Interactive Advertising Bureau (IAB) reports that last-click models systematically bias toward bottom-funnel channels, particularly in e-commerce
+**The Pattern:**
+- **Paid Prospecting** (early-stage): +2% to +190% undervalued by last-click
+- **Organic/Direct** (late-stage): -2% to -17% overvalued by last-click  
+- **Email** (mid-funnel): +18% moderately undervalued
 
-The magnitude isn't engineered—it's an emergent property of simulating real programmatic advertising timing constraints (prospecting before awareness, retargeting after engagement) within standard attribution frameworks. All assumptions and data generation logic are documented in `ASSUMPTIONS.md` and are fully reproducible.
+**Data Context:** This analysis simulates a conservative paid media strategy with 60% user overlap between web traffic and ad exposure, reflecting realistic match rates for programmatic platforms. For companies with higher paid penetration (40-60% of conversions), this misallocation scales proportionally.
 
 ## Technical Architecture
 
 ```
 GA4 Events (Synthetic)          Programmatic Ads (Simulated)
-  ~28K events, 287 purchases      ~14K impressions, 12 campaigns
+  ~28K events, 220 conversions    ~14K impressions, 12 campaigns
          |                                    |
          +-------------> Python <-------------+
                            |
@@ -172,15 +173,17 @@ This model recognizes both the importance of initial awareness and final convers
 
 ## Data Generation
 
-The project generates realistic synthetic data to simulate production marketing datasets while ensuring privacy compliance and reproducibility. The data generation mimics real-world user behavior and programmatic advertising patterns:
+The project generates realistic synthetic data to simulate production marketing datasets while ensuring privacy compliance and reproducibility. Key characteristics:
 
-- **Temporal patterns**: Prospecting ads appear 1-14 days before first session (cold audience targeting); retargeting ads appear after engagement (warm audience targeting). This reflects actual programmatic advertising constraints.
+- **220 conversions** ($110K revenue) across 5,833 users (~3.8% conversion rate)
+- **37 converters (17%)** exposed to paid prospecting campaigns before converting
+- **Average journey length**: 1.9 touchpoints per conversion
+- **47% multi-touch journeys** (2+ touchpoints), 53% single-touch
+- **Temporal patterns**: Prospecting ads fire 1-14 days before first session (standard cold audience targeting)
 - **User overlap**: 60% of web users are targeted with ads (realistic match rates for programmatic platforms)
-- **Conversion rate**: ~5% of users convert (287 purchases across 5,833 users)
-- **Multiple touchpoints**: Average 3-5 touchpoints per converting user, distributed across channels
-- **Reproducibility**: Seeded random generation ensures consistent results for validation
+- **Reproducibility**: Seeded random generation (seed=42) ensures consistent results for validation
 
-**Data Reproducibility**: The synthetic data generation uses seeded randomization (seed=42) to ensure consistent results across runs. The exact undervaluation percentage varies slightly (typically 150-200%) due to stochastic user behavior simulation, but the core finding remains stable. The simulation parameters (1-14 day prospecting window, post-engagement retargeting) reflect actual industry practices documented in the References section below.
+**Data Scope Note:** This analysis reflects a conservative paid media strategy where paid prospecting reaches 17% of conversions. Real-world paid penetration varies widely (15-60% depending on industry and budget allocation). The attribution patterns and undervaluation principles demonstrated here scale proportionally with higher paid media investment.
 
 ## Validation
 
@@ -218,23 +221,23 @@ ORDER BY position_based_revenue DESC;
 
 **Actual Results (seed=42, validated from Snowflake):**
 
-**Prospecting Campaigns (Top-of-Funnel) - SEVERELY UNDERVALUED:**
-- **prospecting_display**: +190% increase ($575 → $1,666)
-- **prospecting_native**: +107% increase ($1,778 → $3,677)
-- **prospecting_video**: +2% increase ($3,069 → $3,135)
+| Channel | Last Touch Revenue | Position-Based Revenue | Gap % |
+|---------|-------------------|------------------------|-------|
+| **Paid Prospecting (Undervalued)** | | | |
+| prospecting_display | $575 | $1,666 | **+190%** |
+| prospecting_native | $1,778 | $3,677 | **+107%** |
+| prospecting_video | $3,069 | $3,135 | +2% |
+| **Organic/Direct (Overvalued)** | | | |
+| google_organic | $16,273 | $14,129 | -13% |
+| referral | $5,213 | $4,338 | -17% |
+| direct | $20,805 | $20,460 | -2% |
+| social_facebook | $6,806 | $6,516 | -4% |
+| **Mid-Funnel** | | | |
+| email | $3,381 | $3,979 | +18% |
 
-**Organic/Direct Channels - OVERVALUED:**
-- **google_organic**: -13% decrease
-- **referral**: -17% decrease
-- **direct**: -2% decrease
-- **social_facebook**: -4% decrease
+**Key Insight:** Last-click attribution systematically overvalues organic/direct channels while undervaluing paid prospecting campaigns that initiated awareness. Among the 37 conversions with prospecting touchpoints, prospecting display receives nearly **3x more credit** under position-based models, revealing how traditional attribution masks the true value of top-of-funnel investments.
 
-**Other:**
-- **email**: +18% increase
-
-This pattern validates the systematic bias in last-click attribution toward late-stage channels. Prospecting display ads—which drive initial awareness—receive nearly 3x more credit under position-based models, revealing significant budget misallocation risks with traditional last-click attribution.
-
-**Business Impact:** If a company allocates a $100K marketing budget using last-click attribution, they may be under-investing $40-60K in prospecting campaigns that actually drive long-term growth. This analysis provides the data foundation for rebalancing budget allocation.
+**Business Impact:** Even at 17% paid penetration, $3,056 in prospecting value is hidden by last-click attribution. For companies with 40-60% paid media penetration, this misallocation could represent $20-40K in budget optimization opportunities per $100K spend.
 
 For detailed validation queries, see `dbt/attributions/analyses/validate_finding.sql` and `channel_comparison.sql`.
 
@@ -255,9 +258,9 @@ This project's methodology and findings are grounded in established marketing at
 - [Data-Driven Attribution](https://support.google.com/google-ads/answer/6394265) - Google Ads documentation on moving beyond last-click models
 
 
-### Programmatic Advertising & Campaign 
-- [Prospecting vs Retargeting](https://www.criteo.com/blog/search-vs-site-retargeting//) - Criteo's guide to campaign timing and audience targeting strategies
-- [Understanding Campaign Types](https://support.google.com/google-ads/answer/2404190) - Google Ads documentation on campaign structures
+### Programmatic Advertising & Campaign Strategy
+- [Understanding Prospecting Campaigns](https://support.google.com/google-ads/answer/2404190) - Google Ads documentation on campaign structures and targeting
+- [Attribution Lookback Windows](https://support.google.com/analytics/answer/1662518) - How attribution windows impact channel credit
 
 ### Data Modeling
 - [dbt Best Practices](https://docs.getdbt.com/guides/best-practices) - Official dbt documentation on project structure and SQL style
