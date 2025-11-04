@@ -6,6 +6,16 @@ End-to-end attribution modeling pipeline built with Python, Snowflake, and dbt. 
 
 This project quantifies the true contribution of marketing touchpoints across the customer journey using four attribution models, revealing systematic biases in traditional last-click attribution.
 
+## Dashboard
+
+<p align="center">
+  <a href="https://public.tableau.com/app/profile/vignesh.hariharan4351/viz/Book1_17622139583390/Multi-TouchAttributionAnalysisPosition-BasedvsLast-Click">
+    <img src="images/attribution-dashboard.png" alt="Multi-Touch Attribution Dashboard" width="900"/>
+  </a>
+</p>
+
+**[View Dashboard on Tableau Public](https://public.tableau.com/app/profile/vignesh.hariharan4351/viz/Book1_17622139583390/Multi-TouchAttributionAnalysisPosition-BasedvsLast-Click)**
+
 ## Problem Statement
 
 Traditional last-click attribution gives 100% credit to the final touchpoint before conversion, systematically undervaluing early-stage marketing efforts like prospecting campaigns. This leads to:
