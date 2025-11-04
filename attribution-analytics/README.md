@@ -10,7 +10,7 @@ This project quantifies the true contribution of marketing touchpoints across th
 
 <p align="center">
   <a href="https://public.tableau.com/app/profile/vignesh.hariharan4351/viz/Book1_17622139583390/Multi-TouchAttributionAnalysisPosition-BasedvsLast-Click">
-    <img src="images/Multi-Touch Attribution Analysis_ Position-Based vs Last-Click.png" alt="Multi-Touch Attribution Dashboard" width="900"/>
+    <img src="images/Multi-Touch Attribution Analysis_ Position-Based vs Last-Click.png" alt="Multi-Touch Attribution Dashboard" width="600"/>
   </a>
 </p>
 
