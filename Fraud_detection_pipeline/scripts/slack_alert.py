@@ -1,20 +1,8 @@
 """
-Send Slack alerts for CRITICAL risk fraud predictions.
-
-This script queries high-risk transactions from Snowflake and sends 
-formatted alerts to Slack via webhook.
-
-Steps:
-1. Connect to Snowflake
-2. Query HIGH_RISK_TRANSACTIONS for CRITICAL risk (90%+ confidence)
-3. Build formatted Slack message with transaction details
-4. POST to Slack webhook URL
+Send Slack alerts for high-risk fraud predictions.
 
 Usage:
-    # Send alert for top 5 critical transactions
     python scripts/slack_alert.py --limit 5
-    
-    # Dry run (see what would be sent without sending)
     python scripts/slack_alert.py --limit 5 --dry-run
 """
 
@@ -40,15 +28,6 @@ load_dotenv()
 
 
 def load_config(config_path: str) -> Dict[str, Any]:
-    """
-    Load configuration from YAML file.
-    
-    Args:
-        config_path: Path to YAML config file
-    
-    Returns:
-        Configuration dictionary
-    """
     if not os.path.exists(config_path):
         logger.warning(f"Config file not found: {config_path}, using environment variables")
         return {}
@@ -60,16 +39,6 @@ def load_config(config_path: str) -> Dict[str, Any]:
 
 
 def get_high_risk_transactions(config: Dict[str, Any], limit: int = 10) -> List[Tuple]:
-    """
-    Query Snowflake for high-risk transactions.
-    
-    Args:
-        config: Snowflake connection configuration
-        limit: Maximum number of transactions to retrieve
-    
-    Returns:
-        List of transaction tuples
-    """
     logger.info("Querying high-risk transactions...")
     
     conn = get_connection(config)
@@ -102,15 +71,6 @@ def get_high_risk_transactions(config: Dict[str, Any], limit: int = 10) -> List[
 
 
 def build_slack_payload(transactions: List[Tuple]) -> Dict[str, Any]:
-    """
-    Build Slack message payload from transaction data.
-    
-    Args:
-        transactions: List of transaction tuples
-    
-    Returns:
-        Slack webhook payload dictionary
-    """
     total_count = len(transactions)
     total_amount = sum(t[3] for t in transactions)
     
@@ -198,23 +158,10 @@ def build_slack_payload(transactions: List[Tuple]) -> Dict[str, Any]:
 
 
 def send_slack_notification(payload: Dict[str, Any]) -> None:
-    """
-    Send notification to Slack webhook.
-    
-    Args:
-        payload: Slack webhook payload
-    
-    Raises:
-        ValueError: If webhook URL not configured
-        requests.RequestException: If POST request fails
-    """
     webhook_url = os.getenv('SLACK_WEBHOOK_URL')
     
     if not webhook_url:
-        raise ValueError(
-            "SLACK_WEBHOOK_URL not configured. "
-            "Set it in .env file or as environment variable."
-        )
+        raise ValueError("SLACK_WEBHOOK_URL not set in .env file")
     
     logger.info("Sending Slack notification...")
     
@@ -235,15 +182,7 @@ def send_slack_notification(payload: Dict[str, Any]) -> None:
 
 
 def mark_as_alerted(transaction_ids: List[str], config: Dict[str, Any]) -> None:
-    """
-    Mark transactions as alerted in the database.
-    
-    Skips database update for demo purposes. In production, would mark transactions as alerted.
-    
-    Args:
-        transaction_ids: List of transaction IDs to mark
-        config: Snowflake connection configuration
-    """
+    # Mark transactions as alerted (skipped for demo)
     logger.info(f"Would mark {len(transaction_ids)} transactions as alerted (skipped for demo)")
     return
 

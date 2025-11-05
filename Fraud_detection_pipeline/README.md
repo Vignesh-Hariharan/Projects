@@ -292,36 +292,36 @@ python scripts/slack_alert.py --limit 5
 This demo uses batch processing on historical data. In production, you would:
 - Integrate with streaming data (Kafka, Snowpipe)
 - Trigger alerts in real-time as transactions occur
-- Add rate limiting to prevent alert fatigue
+- Add limits to prevent sending too many alerts (which people start to ignore)
 - Include investigation links and action buttons
 
 ## Key Learnings
 
 ### What Worked
 - **Iterative approach**: Starting simple and adding features incrementally
-- **Temporal split**: Training on pre-Oct 2020, testing on Oct 2020+ for realistic evaluation
+- **Time-based split**: Training on older data (before Oct 2020), testing on newer data (Oct 2020+) to see how well it predicts future transactions
 - **Feature comparison**: Actually measuring which features help vs hurt
-- **Threshold tuning**: Testing multiple cutoffs to find best balance
+- **Finding the right cutoff**: Testing different confidence levels to decide when to flag a transaction as fraud
 - **dbt for features**: SQL is fast, readable, and testable
 
 ### Challenges
-- **Class imbalance**: Only 0.17% fraud rate in dataset
-- **Feature selection**: Researched common fraud patterns and tested systematically
+- **Uneven data**: Only 0.17% of transactions are fraud (most are legitimate), making it harder to detect the rare fraud cases
+- **Choosing what to measure**: Researched common fraud patterns and tested them one by one
 - **Precision vs Recall**: Balanced trade-off between false alarms and missed fraud
 - **Snowflake Cortex limits**: Managed ML service with less control than custom models
 
 ### What I'd Do Differently
 - Test more time windows (6h, 48h, 30d) for velocity features
-- Try feature importance analysis earlier to drop weak features
-- Experiment with different date splits to validate stability
-- Add cross-validation if not using Snowflake Cortex
+- Test which measurements matter most and remove the ones that don't help
+- Test with different date ranges to confirm the model works consistently
+- Add multiple rounds of testing on different data chunks if not using Snowflake Cortex
 
 ## Limitations
 
 This is a portfolio project, not production-ready. Known limitations:
 
 1. **Batch processing only** - no real-time scoring
-2. **No drift monitoring** - model performance could degrade over time
+2. **No performance tracking** - model accuracy could get worse over time (as fraud patterns change) without us noticing
 3. **Limited ML tuning** - using Cortex defaults
 4. **Simulated data** - patterns may differ from real fraud
 5. **No orchestration** - manual execution or basic scheduling
@@ -366,7 +366,7 @@ dbt test
 Priority improvements for production:
 1. Real-time scoring with Snowpipe and Tasks
 2. Automated model retraining pipeline
-3. Drift monitoring and alerting
+3. Track model performance over time and get alerts when accuracy drops
 4. Interactive fraud dashboard
 5. Orchestration with Airflow/Prefect
 

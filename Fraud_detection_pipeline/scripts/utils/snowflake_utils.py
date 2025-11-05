@@ -9,19 +9,7 @@ logger = get_logger(__name__)
 
 
 def get_connection(config: Dict[str, Any]) -> SnowflakeConnection:
-    """
-    Create a Snowflake connection using config dict or environment variables.
-    
-    Args:
-        config: Dictionary with snowflake connection parameters
-    
-    Returns:
-        Active Snowflake connection
-    
-    Raises:
-        ValueError: If required connection parameters are missing
-        snowflake.connector.Error: If connection fails
-    """
+    # Create Snowflake connection from config or env vars
     snowflake_config = config.get('snowflake', {})
     
     account = snowflake_config.get('account') or os.getenv('SNOWFLAKE_ACCOUNT')
@@ -34,9 +22,7 @@ def get_connection(config: Dict[str, Any]) -> SnowflakeConnection:
     
     if not all([account, user, password]):
         raise ValueError(
-            "Missing required Snowflake credentials. "
-            "Provide via config file or environment variables: "
-            "SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PASSWORD"
+            "Missing Snowflake credentials. Set SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PASSWORD"
         )
     
     logger.info(f"Connecting to Snowflake account: {account}")
@@ -65,21 +51,6 @@ def execute_query(
     params: Optional[Tuple] = None,
     fetch: bool = False
 ) -> Optional[List[Tuple]]:
-    """
-    Execute a SQL query and optionally fetch results.
-    
-    Args:
-        conn: Active Snowflake connection
-        query: SQL query to execute
-        params: Optional query parameters for parameterized queries
-        fetch: Whether to fetch and return results
-    
-    Returns:
-        List of result tuples if fetch=True, None otherwise
-    
-    Raises:
-        snowflake.connector.Error: If query execution fails
-    """
     cursor = None
     try:
         cursor = conn.cursor()
@@ -108,17 +79,6 @@ def execute_query(
 
 
 def execute_file(conn: SnowflakeConnection, sql_file_path: str) -> None:
-    """
-    Execute SQL commands from a file.
-    
-    Args:
-        conn: Active Snowflake connection
-        sql_file_path: Path to SQL file
-    
-    Raises:
-        FileNotFoundError: If SQL file doesn't exist
-        snowflake.connector.Error: If query execution fails
-    """
     logger.info(f"Executing SQL file: {sql_file_path}")
     
     with open(sql_file_path, 'r') as f:

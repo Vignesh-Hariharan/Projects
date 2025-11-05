@@ -1,11 +1,5 @@
 """
-Evaluate trained fraud detection model and log metrics.
-
-This script:
-1. Runs evaluation queries on the test set
-2. Calculates comprehensive performance metrics
-3. Logs results to model registry
-4. Outputs metrics for documentation
+Evaluate trained model and log metrics.
 
 Usage:
     python scripts/evaluate_model.py --config config/snowflake_config.yml
@@ -25,13 +19,11 @@ logger = get_logger(__name__)
 
 
 def load_config(config_path: str) -> Dict[str, Any]:
-    """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
 
 def get_confusion_matrix(conn) -> Dict[str, int]:
-    """Calculate confusion matrix from predictions."""
     query = """
     SELECT
         SUM(CASE WHEN ACTUAL_FRAUD = 1 AND PREDICTED_FRAUD = 1 THEN 1 ELSE 0 END) as tp,
@@ -48,7 +40,6 @@ def get_confusion_matrix(conn) -> Dict[str, int]:
 
 
 def calculate_metrics(confusion_matrix: Dict[str, int]) -> Dict[str, float]:
-    """Calculate performance metrics from confusion matrix."""
     tp = confusion_matrix['tp']
     fp = confusion_matrix['fp']
     fn = confusion_matrix['fn']
@@ -70,7 +61,6 @@ def calculate_metrics(confusion_matrix: Dict[str, int]) -> Dict[str, float]:
 
 
 def get_training_data_stats(conn) -> Dict[str, Any]:
-    """Get training data statistics."""
     query = """
     SELECT
         COUNT(*) as total_records,
@@ -90,7 +80,7 @@ def get_training_data_stats(conn) -> Dict[str, Any]:
 
 
 def log_to_registry(conn, metrics: Dict[str, float], training_stats: Dict[str, Any]) -> None:
-    """Log model metrics to registry table."""
+    # Log metrics to registry
     query = """
     INSERT INTO MARTS.MODEL_REGISTRY (
         model_name,
@@ -161,18 +151,18 @@ def print_evaluation_report(
     
     print("\nInterpretation:")
     if metrics['precision'] > 0.8:
-        print("  ✓ High precision - low false positive rate")
+        print("  High precision - low false positive rate")
     elif metrics['precision'] > 0.5:
-        print("  - Moderate precision - some false positives")
+        print("  Moderate precision - some false positives")
     else:
-        print("  ✗ Low precision - many false positives")
+        print("  Low precision - many false positives")
     
     if metrics['recall'] > 0.8:
-        print("  ✓ High recall - catching most fraud")
+        print("  High recall - catching most fraud")
     elif metrics['recall'] > 0.5:
-        print("  - Moderate recall - missing some fraud")
+        print("  Moderate recall - missing some fraud")
     else:
-        print("  ✗ Low recall - missing significant fraud")
+        print("  Low recall - missing significant fraud")
     
     print("\n" + "="*70 + "\n")
 

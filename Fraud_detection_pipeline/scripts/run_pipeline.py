@@ -1,13 +1,5 @@
 """
-End-to-end pipeline orchestration script.
-
-Executes the complete fraud detection pipeline:
-1. Data validation
-2. dbt transformation
-3. Model prediction
-4. Alert generation
-
-This can be scheduled via cron for regular execution.
+Run the complete fraud detection pipeline.
 
 Usage:
     python scripts/run_pipeline.py --config config/snowflake_config.yml
@@ -29,13 +21,11 @@ PROJECT_ROOT = Path(__file__).parent.parent
 
 
 def load_config(config_path: str) -> dict:
-    """Load configuration file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
 
 def validate_data_quality(config: dict) -> bool:
-    """Run data quality checks before processing."""
     logger.info("Running data quality checks...")
     
     conn = get_connection(config)
@@ -74,7 +64,6 @@ def validate_data_quality(config: dict) -> bool:
 
 
 def run_dbt_models() -> bool:
-    """Execute dbt models."""
     logger.info("Running dbt models...")
     
     dbt_dir = PROJECT_ROOT / 'dbt_project'
@@ -98,7 +87,6 @@ def run_dbt_models() -> bool:
 
 
 def run_dbt_tests() -> bool:
-    """Execute dbt tests."""
     logger.info("Running dbt tests...")
     
     dbt_dir = PROJECT_ROOT / 'dbt_project'
@@ -121,7 +109,6 @@ def run_dbt_tests() -> bool:
 
 
 def generate_predictions(config: dict) -> bool:
-    """Generate model predictions."""
     logger.info("Generating predictions...")
     
     conn = get_connection(config)
@@ -151,7 +138,7 @@ def generate_predictions(config: dict) -> bool:
 
 
 def send_alerts(config_path: str) -> bool:
-    """Trigger alert system."""
+    # Send alerts for high-risk transactions
     logger.info("Checking for high-risk transactions...")
     
     try:
@@ -173,7 +160,7 @@ def send_alerts(config_path: str) -> bool:
 
 
 def log_pipeline_run(config: dict, success: bool, duration: float) -> None:
-    """Log pipeline execution to tracking table."""
+    # Log pipeline run to database
     conn = get_connection(config)
     
     try:

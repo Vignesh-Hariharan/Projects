@@ -1,14 +1,5 @@
 """
-Load Kaggle fraud dataset into Snowflake RAW.TRANSACTIONS.
-
-Steps:
-1. Download fraudTrain.csv from Kaggle using kaggle API
-2. Read CSV with pandas
-3. Validate schema (check for required columns)
-4. Connect to Snowflake using config/snowflake_config.yml or env vars
-5. Load data into RAW.TRANSACTIONS
-6. Write data/sample_transactions.csv with ~100 sampled rows
-7. Log key steps and errors
+Load Kaggle fraud dataset into Snowflake.
 
 Usage:
     python scripts/load_data.py --config config/snowflake_config.yml
@@ -44,15 +35,6 @@ DATA_DIR = Path(__file__).parent.parent / 'data'
 
 
 def download_kaggle_dataset() -> Path:
-    """
-    Download fraud detection dataset from Kaggle.
-    
-    Returns:
-        Path to downloaded CSV file
-    
-    Raises:
-        RuntimeError: If download fails or Kaggle credentials not configured
-    """
     logger.info(f"Downloading dataset: {KAGGLE_DATASET}")
     
     try:
@@ -61,8 +43,7 @@ def download_kaggle_dataset() -> Path:
     except Exception as e:
         raise RuntimeError(
             "Failed to authenticate with Kaggle API. "
-            "Please ensure you have created ~/.kaggle/kaggle.json with your credentials. "
-            "See: https://github.com/Kaggle/kaggle-api#api-credentials"
+            "Make sure you have ~/.kaggle/kaggle.json with your credentials."
         ) from e
     
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -95,18 +76,7 @@ def download_kaggle_dataset() -> Path:
 
 
 def load_config(config_path: str) -> Dict[str, Any]:
-    """
-    Load configuration from YAML file.
-    
-    Args:
-        config_path: Path to YAML config file
-    
-    Returns:
-        Configuration dictionary (empty if file doesn't exist - will use env vars)
-    
-    Raises:
-        yaml.YAMLError: If config file is malformed
-    """
+    # Load config from YAML file, fall back to env vars if not found
     if not os.path.exists(config_path):
         logger.info(f"Config file not found: {config_path}, using environment variables from .env")
         return {}
@@ -120,15 +90,6 @@ def load_config(config_path: str) -> Dict[str, Any]:
 
 
 def validate_schema(df: pd.DataFrame) -> None:
-    """
-    Validate that DataFrame has all required columns.
-    
-    Args:
-        df: DataFrame to validate
-    
-    Raises:
-        ValueError: If required columns are missing
-    """
     missing_columns = set(REQUIRED_COLUMNS) - set(df.columns)
     
     if missing_columns:
@@ -141,20 +102,6 @@ def validate_schema(df: pd.DataFrame) -> None:
 
 
 def load_to_snowflake(df: pd.DataFrame, config: Dict[str, Any]) -> int:
-    """
-    Load DataFrame to Snowflake RAW.TRANSACTIONS table.
-    
-    Args:
-        df: DataFrame with transaction data
-        config: Snowflake connection configuration
-    
-    Returns:
-        Number of rows loaded
-    
-    Raises:
-        ValueError: If connection fails or data load fails
-    """
-    
     logger.info("Connecting to Snowflake...")
     conn = get_connection(config)
     
@@ -244,13 +191,6 @@ def load_to_snowflake(df: pd.DataFrame, config: Dict[str, Any]) -> int:
 
 
 def create_sample(df: pd.DataFrame, sample_size: int = 100) -> None:
-    """
-    Create a sample CSV file for quick inspection.
-    
-    Args:
-        df: Full DataFrame
-        sample_size: Number of rows to sample (default: 100)
-    """
     sample_path = DATA_DIR / 'sample_transactions.csv'
     
     sample_df = df.sample(n=min(sample_size, len(df)), random_state=42)

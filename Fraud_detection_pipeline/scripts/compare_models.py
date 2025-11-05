@@ -1,11 +1,5 @@
 """
-Compare different model experiments and select the best one.
-
-This script scores all trained models on the same test set and compares:
-- Precision, Recall, F1 at default threshold
-- Performance across different thresholds
-- Confusion matrices
-- Feature importance (if available)
+Compare different model experiments.
 
 Usage:
     python scripts/compare_models.py --config config/snowflake_config.yml
@@ -22,13 +16,11 @@ logger = get_logger(__name__)
 
 
 def load_config(config_path: str) -> Dict:
-    """Load configuration file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
 
 def get_test_data_query() -> str:
-    """Get query for test data."""
     return """
     SELECT *
     FROM MARTS.FCT_FRAUD_FEATURES
@@ -37,10 +29,7 @@ def get_test_data_query() -> str:
 
 
 def score_model(conn, model_name: str, feature_columns: List[str]) -> str:
-    """
-    Score a model on test data and create predictions table.
-    Returns the name of the predictions table created.
-    """
+    # Score model on test data and create predictions table
     logger.info(f"Scoring model: {model_name}")
     
     # Create feature selection
@@ -74,7 +63,6 @@ def score_model(conn, model_name: str, feature_columns: List[str]) -> str:
 
 
 def calculate_metrics(conn, predictions_table: str) -> Dict:
-    """Calculate performance metrics from predictions table."""
     query = f"""
     WITH metrics AS (
         SELECT
@@ -110,7 +98,7 @@ def calculate_metrics(conn, predictions_table: str) -> Dict:
 
 
 def test_thresholds(conn, predictions_table: str, thresholds: List[float]) -> List[Dict]:
-    """Test different probability thresholds."""
+    # Test different probability thresholds
     logger.info(f"Testing {len(thresholds)} different thresholds...")
     
     results = []
@@ -152,7 +140,6 @@ def test_thresholds(conn, predictions_table: str, thresholds: List[float]) -> Li
 
 
 def print_comparison(experiments: Dict[str, Dict]) -> None:
-    """Print formatted comparison of all experiments."""
     print("\n" + "="*80)
     print("MODEL COMPARISON RESULTS")
     print("="*80)
@@ -179,7 +166,7 @@ def print_comparison(experiments: Dict[str, Dict]) -> None:
 
 
 def print_threshold_analysis(model_name: str, threshold_results: List[Dict]) -> None:
-    """Print threshold analysis for a model."""
+    # Print threshold analysis
     print(f"\nThreshold Analysis for {model_name}:")
     print("-"*70)
     print(f"{'Threshold':<12} {'Precision':<12} {'Recall':<12} {'F1':<10} {'Flagged':<10}")

@@ -4,16 +4,6 @@ from datetime import datetime
 
 
 def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
-    """
-    Create and configure a logger with console output.
-    
-    Args:
-        name: Logger name (typically __name__ from calling module)
-        level: Logging level (default: INFO)
-    
-    Returns:
-        Configured logger instance
-    """
     logger = logging.getLogger(name)
     
     if logger.handlers:
