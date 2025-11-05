@@ -47,4 +47,3 @@ SELECT
     device_category
 FROM combined
 ORDER BY user_pseudo_id, touchpoint_timestamp
-

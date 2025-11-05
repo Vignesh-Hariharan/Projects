@@ -96,4 +96,3 @@ SELECT
 
 FROM with_attribution_credits
 ORDER BY conversion_id, touchpoint_position
-

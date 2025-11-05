@@ -45,4 +45,3 @@ with_percentages AS (
 SELECT *
 FROM with_percentages
 ORDER BY position_based_revenue DESC;
-

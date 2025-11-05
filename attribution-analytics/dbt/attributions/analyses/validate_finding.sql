@@ -58,4 +58,3 @@ ORDER BY percent_increase DESC;
     
     This is your HEADLINE FINDING for the portfolio.
 */
-

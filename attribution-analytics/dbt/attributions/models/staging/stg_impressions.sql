@@ -60,4 +60,3 @@ SELECT
     has_click,
     device_category
 FROM with_channel
-
