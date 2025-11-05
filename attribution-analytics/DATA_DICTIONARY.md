@@ -94,4 +94,3 @@ Aggregated conversion paths.
 - **Touchpoint**: Any marketing interaction (web session or ad impression)
 - **Attribution Window**: 30 days before conversion
 - **Channel**: Derived from source/medium for web traffic, campaign_type/format for ads
-

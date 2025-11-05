@@ -84,4 +84,3 @@ SELECT
     days_to_conversion
 FROM with_position
 ORDER BY conversion_id, touchpoint_position
-

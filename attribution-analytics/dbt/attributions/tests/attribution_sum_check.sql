@@ -49,4 +49,3 @@ failures AS (
 
 -- Return failures (test passes if this returns 0 rows)
 SELECT * FROM failures
-

@@ -51,4 +51,3 @@ SELECT
     pct_of_conversions
 FROM pathway_summary
 ORDER BY conversion_count DESC
-

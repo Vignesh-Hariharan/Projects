@@ -163,4 +163,3 @@ GRANT ALL ON SCHEMA analytics TO ROLE SYSADMIN;
 
 -- Check campaigns
 -- SELECT * FROM raw.campaigns ORDER BY campaign_id;
-
