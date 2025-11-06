@@ -13,6 +13,11 @@ Attribution analytics pipeline comparing credit allocation across models, highli
 ---
 
 ### Project 2
+
+end-to-end fraud detection pipeline using Snowflake, dbt, and Python. Loaded 1.3M transactions, engineered 15 features with dbt transformations, and automated predictions using Snowflake Cortex ML. Ran 4 experiments and found simpler models (6 features) outperformed complex ones (18 features).
+
+**Stack:** Python, Snowflake Cortex, dbt, Tableau, Slack alerts
+
 ---
 
 ## Tech Stack
