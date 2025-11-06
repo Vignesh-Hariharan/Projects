@@ -7,7 +7,7 @@ Portfolio of data projects demonstrating end-to-end pipeline development, analyt
 ### [Project 1: Multi-Touch Attribution Engine](./attribution-analytics/)
 Attribution analytics pipeline comparing credit allocation across models, highlighting how prospecting channels are consistently undervalued with traditional last-click analytics.
 
-**Stack:** Python, Snowflake, dbt, Tableau *(work in progress)*  
+**Stack:** Python, Snowflake, dbt, Tableau   
 **Skills Used:** Attribution modeling, dimensional modeling, advanced SQL (window functions), dbt transformations, Python ETL, Snowflake data warehousing, orchestration (bash/CLI), synthetic data generation
 
 ---
