@@ -53,10 +53,12 @@ Python Alert Script → Slack
 ## Dataset
 
 Using the **Kaggle Credit Card Fraud Detection Dataset**:
-- Source: https://www.kaggle.com/datasets/kartik2112/fraud-detection
+- **Creator**: [Kartik Shenoy](https://www.kaggle.com/kartik2112)
+- **Source**: https://www.kaggle.com/datasets/kartik2112/fraud-detection
 - 1.3M transactions from 2019-2020
 - ~0.17% fraud rate (imbalanced)
 - Simulated data for education/research
+- Generated using [Sparkov Data Generation](https://github.com/namebrandon/Sparkov_Data_Generation) tool by Brandon Harris
 
 ## Features
 
